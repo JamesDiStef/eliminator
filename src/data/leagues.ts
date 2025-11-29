@@ -1,4 +1,4 @@
-import { League } from '../types/league';
+import type { League } from '../types/league';
 
 export const NFL_TEAMS: League = {
   id: 'nfl',

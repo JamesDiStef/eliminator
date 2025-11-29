@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import './App.css';
 import { NFL_TEAMS, PREMIER_LEAGUE_TEAMS } from './data/leagues';
-import { Player } from './types/player';
-import { League } from './types/league';
+import type { Player } from './types/player';
+import type { League } from './types/league';
 
 function App() {
   const [players, setPlayers] = useState<Player[]>([

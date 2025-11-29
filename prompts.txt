@@ -4,3 +4,5 @@
 
 3. Create the main UI.  this should be a table with three columns.  the farthest level is the players name, and the next two columns should be drop down selectors where the user can pick any nfl team (in the second column) and every premier league team (in the third column).  keep in mind that future refactors will probably happen where different leagues could be used, so the implementation should not be tightly coupled with the team names
 
+4. a blank page is rendering in the browser.  troubleshoot the UI and fix any issues so that the table appears on the screen
+
