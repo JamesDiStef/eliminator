@@ -10,3 +10,5 @@
 
 6. there are now too very similiar yml files under workflows, yet the page is still blank.  fix the deployment issue
 
+7. Create an admin page.  Only the admin page should provide the utility to add a new player.  The mian page should just display the names in read only format
+

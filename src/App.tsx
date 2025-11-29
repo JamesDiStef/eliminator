@@ -1,94 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
-import { NFL_TEAMS, PREMIER_LEAGUE_TEAMS } from './data/leagues';
 import type { Player } from './types/player';
-import type { League } from './types/league';
+import MainPage from './components/MainPage';
+import Admin from './components/Admin';
+
+type Page = 'main' | 'admin';
 
 function App() {
-  const [players, setPlayers] = useState<Player[]>([
-    { id: '1', name: 'Player 1', selectedTeams: {} },
-  ]);
-
-  const leagues: League[] = [NFL_TEAMS, PREMIER_LEAGUE_TEAMS];
-
-  const handleTeamChange = (playerId: string, leagueId: string, teamId: string | null) => {
-    setPlayers(players.map(player => {
-      if (player.id === playerId) {
-        return {
-          ...player,
-          selectedTeams: {
-            ...player.selectedTeams,
-            [leagueId]: teamId,
-          },
-        };
+  const [currentPage, setCurrentPage] = useState<Page>('main');
+  const [players, setPlayers] = useState<Player[]>(() => {
+    // Load from localStorage if available
+    const saved = localStorage.getItem('eliminator-players');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [{ id: '1', name: 'Player 1', selectedTeams: {} }];
       }
-      return player;
-    }));
-  };
+    }
+    return [{ id: '1', name: 'Player 1', selectedTeams: {} }];
+  });
 
-  const addPlayer = () => {
-    const newPlayer: Player = {
-      id: Date.now().toString(),
-      name: `Player ${players.length + 1}`,
-      selectedTeams: {},
-    };
-    setPlayers([...players, newPlayer]);
-  };
-
-  const updatePlayerName = (playerId: string, name: string) => {
-    setPlayers(players.map(player =>
-      player.id === playerId ? { ...player, name } : player
-    ));
-  };
+  // Save to localStorage whenever players change
+  useEffect(() => {
+    localStorage.setItem('eliminator-players', JSON.stringify(players));
+  }, [players]);
 
   return (
     <div className="app">
-      <h1>Eliminator</h1>
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Player Name</th>
-              {leagues.map(league => (
-                <th key={league.id}>{league.name}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {players.map(player => (
-              <tr key={player.id}>
-                <td>
-                  <input
-                    type="text"
-                    value={player.name}
-                    onChange={(e) => updatePlayerName(player.id, e.target.value)}
-                    className="player-name-input"
-                  />
-                </td>
-                {leagues.map(league => (
-                  <td key={league.id}>
-                    <select
-                      value={player.selectedTeams[league.id] || ''}
-                      onChange={(e) => handleTeamChange(player.id, league.id, e.target.value || null)}
-                      className="team-select"
-                    >
-                      <option value="">Select team...</option>
-                      {league.teams.map(team => (
-                        <option key={team.id} value={team.id}>
-                          {team.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button onClick={addPlayer} className="add-player-btn">
-          Add Player
-        </button>
-      </div>
+      {currentPage === 'main' ? (
+        <MainPage
+          players={players}
+          onNavigateToAdmin={() => setCurrentPage('admin')}
+        />
+      ) : (
+        <Admin
+          players={players}
+          onPlayersChange={setPlayers}
+          onNavigateToMain={() => setCurrentPage('main')}
+        />
+      )}
     </div>
   );
 }

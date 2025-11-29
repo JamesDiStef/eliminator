@@ -1,16 +1,8 @@
 .app {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
   min-height: 100vh;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: #333;
-}
-
+/* Shared table styles */
 .table-container {
   background: white;
   border-radius: 8px;
