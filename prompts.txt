@@ -22,3 +22,5 @@
 
 12. add vertical lines to the all selections tab to provide readability.  the nfl and premier league pick for the same week should be grouped together, but the vertical lines should seperate weeks
 
+13. on mobile the paginator on the bottom should just have the arrows
+

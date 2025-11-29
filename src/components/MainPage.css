@@ -199,3 +199,13 @@
 .all-selections-table .player-name-cell {
   border-right: 2px solid #646cff;
 }
+
+@media (max-width: 768px) {
+  .week-numbers {
+    display: none;
+  }
+  
+  .week-stepper {
+    gap: 2rem;
+  }
+}
