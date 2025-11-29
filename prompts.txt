@@ -18,3 +18,5 @@
 
 10. Instead of tabs on the top, lets make it a stepper on the bottom where users can tab left and right or click on a week - like a paginator.  For the tabs on the top, add a tab that opens a read only table view of all selections all users have made for every week
 
+11. for the admin page the admin needs to be able to enter the name of the new player
+

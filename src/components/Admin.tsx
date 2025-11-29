@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Player } from '../types/player';
 import './Admin.css';
 
@@ -8,13 +9,27 @@ interface AdminProps {
 }
 
 function Admin({ players, onPlayersChange, onNavigateToMain }: AdminProps) {
+  const [newPlayerName, setNewPlayerName] = useState('');
+
   const addPlayer = () => {
+    const trimmedName = newPlayerName.trim();
+    if (!trimmedName) {
+      return; // Don't add if name is empty
+    }
+    
     const newPlayer: Player = {
       id: Date.now().toString(),
-      name: `Player ${players.length + 1}`,
+      name: trimmedName,
       selectedTeams: {},
     };
     onPlayersChange([...players, newPlayer]);
+    setNewPlayerName(''); // Clear input after adding
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      addPlayer();
+    }
   };
 
   const deletePlayer = (playerId: string) => {
@@ -42,7 +57,7 @@ function Admin({ players, onPlayersChange, onNavigateToMain }: AdminProps) {
             {players.length === 0 ? (
               <tr>
                 <td colSpan={2} className="empty-state">
-                  No players added yet. Click "Add Player" to get started.
+                  No players added yet. Enter a name below to add a player.
                 </td>
               </tr>
             ) : (
@@ -62,9 +77,23 @@ function Admin({ players, onPlayersChange, onNavigateToMain }: AdminProps) {
             )}
           </tbody>
         </table>
-        <button onClick={addPlayer} className="add-player-btn">
-          Add Player
-        </button>
+        <div className="add-player-section">
+          <input
+            type="text"
+            value={newPlayerName}
+            onChange={(e) => setNewPlayerName(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Enter player name..."
+            className="player-name-input"
+          />
+          <button 
+            onClick={addPlayer} 
+            className="add-player-btn"
+            disabled={!newPlayerName.trim()}
+          >
+            Add Player
+          </button>
+        </div>
       </div>
     </div>
   );
