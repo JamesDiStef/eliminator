@@ -14,3 +14,5 @@
 
 8. The dropdowns to select teams need to be on the main page.  the admin team should have add and delete the player name only
 
+9. the page needs to support up to 18 weeks.  create a tabbing mechanism so that users can toggle between weeks and make their selections for each week.  also, when a user picks a team for one week, they cannot select it for another week - so if i pick the eagles for week one, i should not see the option to select it for any other week
+
