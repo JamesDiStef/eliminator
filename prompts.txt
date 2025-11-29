@@ -8,3 +8,5 @@
 
 5. read this doc and fix the deployment issue i am having with github pages @https://vite.dev/guide/static-deploy.html
 
+6. there are now too very similiar yml files under workflows, yet the page is still blank.  fix the deployment issue
+
