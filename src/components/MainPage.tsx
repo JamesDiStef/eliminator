@@ -13,8 +13,11 @@ interface MainPageProps {
 
 const TOTAL_WEEKS = 18;
 
+type ViewMode = 'selections' | 'all-selections';
+
 function MainPage({ players, onPlayersChange, onNavigateToAdmin }: MainPageProps) {
   const [currentWeek, setCurrentWeek] = useState<number>(1);
+  const [viewMode, setViewMode] = useState<ViewMode>('selections');
   const leagues: League[] = [NFL_TEAMS, PREMIER_LEAGUE_TEAMS];
 
   const handleTeamChange = (playerId: string, week: number, leagueId: string, teamId: string | null) => {
@@ -59,7 +62,138 @@ function MainPage({ players, onPlayersChange, onNavigateToAdmin }: MainPageProps
     return league.teams.filter(team => !usedTeams.has(team.id));
   };
 
-  const weekTabs = Array.from({ length: TOTAL_WEEKS }, (_, i) => i + 1);
+  // Get team name by ID
+  const getTeamName = (leagueId: string, teamId: string | null | undefined): string => {
+    if (!teamId) return '-';
+    const league = leagues.find(l => l.id === leagueId);
+    const team = league?.teams.find(t => t.id === teamId);
+    return team?.name || '-';
+  };
+
+  const goToPreviousWeek = () => {
+    if (currentWeek > 1) {
+      setCurrentWeek(currentWeek - 1);
+    }
+  };
+
+  const goToNextWeek = () => {
+    if (currentWeek < TOTAL_WEEKS) {
+      setCurrentWeek(currentWeek + 1);
+    }
+  };
+
+  const renderSelectionsView = () => (
+    <div className="table-container">
+      <div className="week-header">
+        <h2>Week {currentWeek}</h2>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Player Name</th>
+            {leagues.map(league => (
+              <th key={league.id}>{league.name}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {players.length === 0 ? (
+            <tr>
+              <td colSpan={leagues.length + 1} className="empty-state">
+                No players added yet. Go to Admin to add players.
+              </td>
+            </tr>
+          ) : (
+            players.map(player => {
+              const weekKey = currentWeek.toString();
+              const weekSelections = player.selectedTeams[weekKey] || {};
+              
+              return (
+                <tr key={player.id}>
+                  <td className="read-only-cell">{player.name}</td>
+                  {leagues.map(league => {
+                    const availableTeams = getAvailableTeams(player, league, currentWeek);
+                    const selectedTeamId = weekSelections[league.id] || '';
+                    
+                    return (
+                      <td key={league.id}>
+                        <select
+                          value={selectedTeamId}
+                          onChange={(e) => handleTeamChange(player.id, currentWeek, league.id, e.target.value || null)}
+                          className="team-select"
+                        >
+                          <option value="">Select team...</option>
+                          {availableTeams.map(team => (
+                            <option key={team.id} value={team.id}>
+                              {team.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const renderAllSelectionsView = () => {
+    const weekNumbers = Array.from({ length: TOTAL_WEEKS }, (_, i) => i + 1);
+    
+    return (
+      <div className="table-container all-selections-container">
+        <table className="all-selections-table">
+          <thead>
+            <tr>
+              <th rowSpan={2}>Player</th>
+              {weekNumbers.map(week => (
+                <th key={week} colSpan={leagues.length} className="week-header-cell">
+                  Week {week}
+                </th>
+              ))}
+            </tr>
+            <tr>
+              {weekNumbers.map(week => 
+                leagues.map(league => (
+                  <th key={`${week}-${league.id}`} className="league-header-cell">
+                    {league.name}
+                  </th>
+                ))
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {players.length === 0 ? (
+              <tr>
+                <td colSpan={1 + TOTAL_WEEKS * leagues.length} className="empty-state">
+                  No players added yet. Go to Admin to add players.
+                </td>
+              </tr>
+            ) : (
+              players.map(player => (
+                <tr key={player.id}>
+                  <td className="read-only-cell player-name-cell">{player.name}</td>
+                  {weekNumbers.map(week => {
+                    const weekKey = week.toString();
+                    const weekSelections = player.selectedTeams[weekKey] || {};
+                    return leagues.map(league => (
+                      <td key={`${week}-${league.id}`} className="read-only-cell">
+                        {getTeamName(league.id, weekSelections[league.id])}
+                      </td>
+                    ));
+                  })}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   return (
     <div className="main-page">
@@ -70,74 +204,54 @@ function MainPage({ players, onPlayersChange, onNavigateToAdmin }: MainPageProps
         </button>
       </div>
       
-      <div className="week-tabs">
-        {weekTabs.map(week => (
-          <button
-            key={week}
-            onClick={() => setCurrentWeek(week)}
-            className={`week-tab ${currentWeek === week ? 'active' : ''}`}
-          >
-            Week {week}
-          </button>
-        ))}
+      <div className="view-tabs">
+        <button
+          onClick={() => setViewMode('selections')}
+          className={`view-tab ${viewMode === 'selections' ? 'active' : ''}`}
+        >
+          Selections
+        </button>
+        <button
+          onClick={() => setViewMode('all-selections')}
+          className={`view-tab ${viewMode === 'all-selections' ? 'active' : ''}`}
+        >
+          All Selections
+        </button>
       </div>
 
-      <div className="table-container">
-        <div className="week-header">
-          <h2>Week {currentWeek}</h2>
+      {viewMode === 'selections' ? renderSelectionsView() : renderAllSelectionsView()}
+
+      {viewMode === 'selections' && (
+        <div className="week-stepper">
+          <button
+            onClick={goToPreviousWeek}
+            disabled={currentWeek === 1}
+            className="stepper-button"
+            aria-label="Previous week"
+          >
+            ←
+          </button>
+          <div className="week-numbers">
+            {Array.from({ length: TOTAL_WEEKS }, (_, i) => i + 1).map(week => (
+              <button
+                key={week}
+                onClick={() => setCurrentWeek(week)}
+                className={`week-number ${currentWeek === week ? 'active' : ''}`}
+              >
+                {week}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={goToNextWeek}
+            disabled={currentWeek === TOTAL_WEEKS}
+            className="stepper-button"
+            aria-label="Next week"
+          >
+            →
+          </button>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Player Name</th>
-              {leagues.map(league => (
-                <th key={league.id}>{league.name}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {players.length === 0 ? (
-              <tr>
-                <td colSpan={leagues.length + 1} className="empty-state">
-                  No players added yet. Go to Admin to add players.
-                </td>
-              </tr>
-            ) : (
-              players.map(player => {
-                const weekKey = currentWeek.toString();
-                const weekSelections = player.selectedTeams[weekKey] || {};
-                
-                return (
-                  <tr key={player.id}>
-                    <td className="read-only-cell">{player.name}</td>
-                    {leagues.map(league => {
-                      const availableTeams = getAvailableTeams(player, league, currentWeek);
-                      const selectedTeamId = weekSelections[league.id] || '';
-                      
-                      return (
-                        <td key={league.id}>
-                          <select
-                            value={selectedTeamId}
-                            onChange={(e) => handleTeamChange(player.id, currentWeek, league.id, e.target.value || null)}
-                            className="team-select"
-                          >
-                            <option value="">Select team...</option>
-                            {availableTeams.map(team => (
-                              <option key={team.id} value={team.id}>
-                                {team.name}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+      )}
     </div>
   );
 }
