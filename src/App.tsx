@@ -31,6 +31,7 @@ function App() {
       {currentPage === 'main' ? (
         <MainPage
           players={players}
+          onPlayersChange={setPlayers}
           onNavigateToAdmin={() => setCurrentPage('admin')}
         />
       ) : (

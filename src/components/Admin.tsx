@@ -1,7 +1,4 @@
-import { useState } from 'react';
 import type { Player } from '../types/player';
-import { NFL_TEAMS, PREMIER_LEAGUE_TEAMS } from '../data/leagues';
-import type { League } from '../types/league';
 import './Admin.css';
 
 interface AdminProps {
@@ -11,24 +8,6 @@ interface AdminProps {
 }
 
 function Admin({ players, onPlayersChange, onNavigateToMain }: AdminProps) {
-  const leagues: League[] = [NFL_TEAMS, PREMIER_LEAGUE_TEAMS];
-
-  const handleTeamChange = (playerId: string, leagueId: string, teamId: string | null) => {
-    const updatedPlayers = players.map(player => {
-      if (player.id === playerId) {
-        return {
-          ...player,
-          selectedTeams: {
-            ...player.selectedTeams,
-            [leagueId]: teamId,
-          },
-        };
-      }
-      return player;
-    });
-    onPlayersChange(updatedPlayers);
-  };
-
   const addPlayer = () => {
     const newPlayer: Player = {
       id: Date.now().toString(),
@@ -36,13 +15,6 @@ function Admin({ players, onPlayersChange, onNavigateToMain }: AdminProps) {
       selectedTeams: {},
     };
     onPlayersChange([...players, newPlayer]);
-  };
-
-  const updatePlayerName = (playerId: string, name: string) => {
-    const updatedPlayers = players.map(player =>
-      player.id === playerId ? { ...player, name } : player
-    );
-    onPlayersChange(updatedPlayers);
   };
 
   const deletePlayer = (playerId: string) => {
@@ -63,49 +35,31 @@ function Admin({ players, onPlayersChange, onNavigateToMain }: AdminProps) {
           <thead>
             <tr>
               <th>Player Name</th>
-              {leagues.map(league => (
-                <th key={league.id}>{league.name}</th>
-              ))}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {players.map(player => (
-              <tr key={player.id}>
-                <td>
-                  <input
-                    type="text"
-                    value={player.name}
-                    onChange={(e) => updatePlayerName(player.id, e.target.value)}
-                    className="player-name-input"
-                  />
-                </td>
-                {leagues.map(league => (
-                  <td key={league.id}>
-                    <select
-                      value={player.selectedTeams[league.id] || ''}
-                      onChange={(e) => handleTeamChange(player.id, league.id, e.target.value || null)}
-                      className="team-select"
-                    >
-                      <option value="">Select team...</option>
-                      {league.teams.map(team => (
-                        <option key={team.id} value={team.id}>
-                          {team.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                ))}
-                <td>
-                  <button
-                    onClick={() => deletePlayer(player.id)}
-                    className="delete-btn"
-                  >
-                    Delete
-                  </button>
+            {players.length === 0 ? (
+              <tr>
+                <td colSpan={2} className="empty-state">
+                  No players added yet. Click "Add Player" to get started.
                 </td>
               </tr>
-            ))}
+            ) : (
+              players.map(player => (
+                <tr key={player.id}>
+                  <td className="read-only-cell">{player.name}</td>
+                  <td>
+                    <button
+                      onClick={() => deletePlayer(player.id)}
+                      className="delete-btn"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
         <button onClick={addPlayer} className="add-player-btn">
@@ -117,4 +71,3 @@ function Admin({ players, onPlayersChange, onNavigateToMain }: AdminProps) {
 }
 
 export default Admin;
-

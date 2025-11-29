@@ -5,17 +5,27 @@ import './MainPage.css';
 
 interface MainPageProps {
   players: Player[];
+  onPlayersChange: (players: Player[]) => void;
   onNavigateToAdmin: () => void;
 }
 
-function MainPage({ players, onNavigateToAdmin }: MainPageProps) {
+function MainPage({ players, onPlayersChange, onNavigateToAdmin }: MainPageProps) {
   const leagues: League[] = [NFL_TEAMS, PREMIER_LEAGUE_TEAMS];
 
-  const getTeamName = (leagueId: string, teamId: string | null | undefined): string => {
-    if (!teamId) return '-';
-    const league = leagues.find(l => l.id === leagueId);
-    const team = league?.teams.find(t => t.id === teamId);
-    return team?.name || '-';
+  const handleTeamChange = (playerId: string, leagueId: string, teamId: string | null) => {
+    const updatedPlayers = players.map(player => {
+      if (player.id === playerId) {
+        return {
+          ...player,
+          selectedTeams: {
+            ...player.selectedTeams,
+            [leagueId]: teamId,
+          },
+        };
+      }
+      return player;
+    });
+    onPlayersChange(updatedPlayers);
   };
 
   return (
@@ -48,8 +58,19 @@ function MainPage({ players, onNavigateToAdmin }: MainPageProps) {
                 <tr key={player.id}>
                   <td className="read-only-cell">{player.name}</td>
                   {leagues.map(league => (
-                    <td key={league.id} className="read-only-cell">
-                      {getTeamName(league.id, player.selectedTeams[league.id])}
+                    <td key={league.id}>
+                      <select
+                        value={player.selectedTeams[league.id] || ''}
+                        onChange={(e) => handleTeamChange(player.id, league.id, e.target.value || null)}
+                        className="team-select"
+                      >
+                        <option value="">Select team...</option>
+                        {league.teams.map(team => (
+                          <option key={team.id} value={team.id}>
+                            {team.name}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                   ))}
                 </tr>
@@ -63,4 +84,3 @@ function MainPage({ players, onNavigateToAdmin }: MainPageProps) {
 }
 
 export default MainPage;
-

@@ -12,3 +12,5 @@
 
 7. Create an admin page.  Only the admin page should provide the utility to add a new player.  The mian page should just display the names in read only format
 
+8. The dropdowns to select teams need to be on the main page.  the admin team should have add and delete the player name only
+
