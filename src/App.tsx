@@ -1,35 +1,96 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
+import { NFL_TEAMS, PREMIER_LEAGUE_TEAMS } from './data/leagues';
+import { Player } from './types/player';
+import { League } from './types/league';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [players, setPlayers] = useState<Player[]>([
+    { id: '1', name: 'Player 1', selectedTeams: {} },
+  ]);
+
+  const leagues: League[] = [NFL_TEAMS, PREMIER_LEAGUE_TEAMS];
+
+  const handleTeamChange = (playerId: string, leagueId: string, teamId: string | null) => {
+    setPlayers(players.map(player => {
+      if (player.id === playerId) {
+        return {
+          ...player,
+          selectedTeams: {
+            ...player.selectedTeams,
+            [leagueId]: teamId,
+          },
+        };
+      }
+      return player;
+    }));
+  };
+
+  const addPlayer = () => {
+    const newPlayer: Player = {
+      id: Date.now().toString(),
+      name: `Player ${players.length + 1}`,
+      selectedTeams: {},
+    };
+    setPlayers([...players, newPlayer]);
+  };
+
+  const updatePlayerName = (playerId: string, name: string) => {
+    setPlayers(players.map(player =>
+      player.id === playerId ? { ...player, name } : player
+    ));
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div className="app">
+      <h1>Eliminator</h1>
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Player Name</th>
+              {leagues.map(league => (
+                <th key={league.id}>{league.name}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {players.map(player => (
+              <tr key={player.id}>
+                <td>
+                  <input
+                    type="text"
+                    value={player.name}
+                    onChange={(e) => updatePlayerName(player.id, e.target.value)}
+                    className="player-name-input"
+                  />
+                </td>
+                {leagues.map(league => (
+                  <td key={league.id}>
+                    <select
+                      value={player.selectedTeams[league.id] || ''}
+                      onChange={(e) => handleTeamChange(player.id, league.id, e.target.value || null)}
+                      className="team-select"
+                    >
+                      <option value="">Select team...</option>
+                      {league.teams.map(team => (
+                        <option key={team.id} value={team.id}>
+                          {team.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button onClick={addPlayer} className="add-player-btn">
+          Add Player
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
