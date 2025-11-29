@@ -1,0 +1,4 @@
+1. create a top level folder called prompts.txt that contains a numbered list starting with this prompt. every prompt that is given for the lifetime of this project should be added to that file
+
+2. connect and push to this repo @https://github.com/JamesDiStef/eliminator .  from now on every time a prompt is given to cursor the prompts.txt file should be updated, and all changes should be pushed to the remote repository.  the commit message shoudl be the prompt, proceeded by the word PROMPT in all caps and a colon
+
