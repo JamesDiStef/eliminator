@@ -10,6 +10,8 @@ interface AdminProps {
 
 function Admin({ players, onPlayersChange, onNavigateToMain }: AdminProps) {
   const [newPlayerName, setNewPlayerName] = useState('');
+  const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
 
   const addPlayer = () => {
     const trimmedName = newPlayerName.trim();
@@ -30,6 +32,38 @@ function Admin({ players, onPlayersChange, onNavigateToMain }: AdminProps) {
     if (e.key === 'Enter') {
       addPlayer();
     }
+  };
+
+  const handleEditKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, playerId: string) => {
+    if (e.key === 'Enter') {
+      savePlayerName(playerId);
+    } else if (e.key === 'Escape') {
+      cancelEdit();
+    }
+  };
+
+  const startEdit = (player: Player) => {
+    setEditingPlayerId(player.id);
+    setEditingName(player.name);
+  };
+
+  const savePlayerName = (playerId: string) => {
+    const trimmedName = editingName.trim();
+    if (!trimmedName) {
+      cancelEdit();
+      return;
+    }
+    
+    const updatedPlayers = players.map(player =>
+      player.id === playerId ? { ...player, name: trimmedName } : player
+    );
+    onPlayersChange(updatedPlayers);
+    cancelEdit();
+  };
+
+  const cancelEdit = () => {
+    setEditingPlayerId(null);
+    setEditingName('');
   };
 
   const deletePlayer = (playerId: string) => {
@@ -63,7 +97,31 @@ function Admin({ players, onPlayersChange, onNavigateToMain }: AdminProps) {
             ) : (
               players.map(player => (
                 <tr key={player.id}>
-                  <td className="read-only-cell">{player.name}</td>
+                  <td>
+                    {editingPlayerId === player.id ? (
+                      <input
+                        type="text"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        onKeyDown={(e) => handleEditKeyPress(e, player.id)}
+                        onBlur={() => savePlayerName(player.id)}
+                        className="edit-name-input"
+                        autoFocus
+                      />
+                    ) : (
+                      <div className="player-name-display">
+                        <span>{player.name}</span>
+                        <button
+                          onClick={() => startEdit(player)}
+                          className="edit-icon-btn"
+                          aria-label="Edit player name"
+                          title="Edit player name"
+                        >
+                          ✏️
+                        </button>
+                      </div>
+                    )}
+                  </td>
                   <td>
                     <button
                       onClick={() => deletePlayer(player.id)}

@@ -20,3 +20,5 @@
 
 11. for the admin page the admin needs to be able to enter the name of the new player
 
+12. add vertical lines to the all selections tab to provide readability.  the nfl and premier league pick for the same week should be grouped together, but the vertical lines should seperate weeks
+

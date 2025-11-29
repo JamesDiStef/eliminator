@@ -191,3 +191,11 @@
   font-size: 0.85rem;
   font-weight: 500;
 }
+
+.week-separator {
+  border-right: 2px solid #646cff;
+}
+
+.all-selections-table .player-name-cell {
+  border-right: 2px solid #646cff;
+}

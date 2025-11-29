@@ -158,8 +158,11 @@ function MainPage({ players, onPlayersChange, onNavigateToAdmin }: MainPageProps
             </tr>
             <tr>
               {weekNumbers.map(week => 
-                leagues.map(league => (
-                  <th key={`${week}-${league.id}`} className="league-header-cell">
+                leagues.map((league, leagueIndex) => (
+                  <th 
+                    key={`${week}-${league.id}`} 
+                    className={`league-header-cell ${leagueIndex === leagues.length - 1 && week !== TOTAL_WEEKS ? 'week-separator' : ''}`}
+                  >
                     {league.name}
                   </th>
                 ))
@@ -180,8 +183,11 @@ function MainPage({ players, onPlayersChange, onNavigateToAdmin }: MainPageProps
                   {weekNumbers.map(week => {
                     const weekKey = week.toString();
                     const weekSelections = player.selectedTeams[weekKey] || {};
-                    return leagues.map(league => (
-                      <td key={`${week}-${league.id}`} className="read-only-cell">
+                    return leagues.map((league, leagueIndex) => (
+                      <td 
+                        key={`${week}-${league.id}`} 
+                        className={`read-only-cell ${leagueIndex === leagues.length - 1 && week !== TOTAL_WEEKS ? 'week-separator' : ''}`}
+                      >
                         {getTeamName(league.id, weekSelections[league.id])}
                       </td>
                     ));
